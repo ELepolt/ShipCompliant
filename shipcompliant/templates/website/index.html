@@ -1,0 +1,136 @@
+{% extends 'website/_base.html' %}
+
+{% block content %}
+<div class="row">
+	<div class="jumbotron">
+		<h1>Create a new brew!</h1>
+		<p>Use the form below to create a new beer recipe</p>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="well">
+					<form class="form-fs" action="/addrecipe/" method="post" role="form">
+        				{% csrf_token %}
+						{% for field, error in user_form.errors.as_text %}
+						<div class="alert alert-danger login-alert">{{ error }}</div>
+						{% endfor %}
+
+						<input type="text" class="form-control" name="name" placeholder="Beer Title">
+						<input type="hidden" class"form-control" id="hidden-ingredients" name="ingredients" value="">
+						{% for ingredient_type, ingredients in ingredient_dict.iteritems %}
+							<input type="hidden" class"form-control" id="ingredient{{ ingredient_type.id }}">
+							<br/>
+							<div class="btn-group sc_spacing">
+								<button id="button{{ ingredient_type.id }}" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+								{{ ingredient_type.ingredient_type }}
+								<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+									{% for ingredient in ingredients %}
+										<li id="ingredient_li{{ ingredient_type.id }}-{{ingredient.id}}">{{ ingredient.name }}</li>	
+									{% endfor %}
+								</ul>
+								<input type="text" class="form-control" id="amount{{ ingredient_type.id }}" placeholder="Amount">
+								<span><button id="add{{ ingredient_type.id }}" type="button" class="btn btn-default btn-xs addButton">
+									<span class="glyphicon glyphicon-plus"></span>
+								</button></span>
+							</div>
+						{% endfor %}
+						
+						<br/>
+						<a onclick="alert('Saving an ingredient resets your recipe.')" href="#" class="Ingredient" data-toggle="modal" data-target=".addIngredient"><i>(Don't see an ingredient?)</i></a>
+
+						<br />
+						<input type="text" class="form-control" name="instructions" placeholder="Instructions">
+						
+						<div id="addIngredient" class="modal fade addIngredient" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+							<div class="modal-dialog modal-lg">
+								<div class="modal-content"></div>
+							</div>
+						</div>
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Ingredients</h3>
+							</div>
+							<div class="panel-body" id="ingredients"></div>
+						</div>
+						<hr>
+
+						<button class="btn btn-primary btn-lg btn-block" type="submit">Submit Recipe</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<h2>All Beer Recipes</h2>
+			<ul class="list-group">
+				{% for recipe, ingredients in recipe_list.iteritems %}
+					<li class="list-group-item" data-toggle="collapse" data-target="#recipe{{ recipe.id }}">
+						{{ recipe.title }}
+						<div id="recipe{{ recipe.id }}" class="collapse out">
+							<ul class="list-group sub-list">
+								<div class="row">
+								{% for ingredient in ingredients %}
+									<div class="col-md-12">
+										<li class="list-group-item">
+											<span class="badge">{{ ingredient.amount }}</span>
+											{{ ingredient.ingredient.name }}
+										</li>
+									</div>
+								{% endfor %}
+								</div>
+								<h4>Instructions:</h4>
+								<p> {{ recipe.instructions }} </p>
+							<ul>
+						</div>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+</div>
+
+{% endblock content %}
+
+{% block js %}
+
+<script type="text/javascript">
+
+$('.Ingredient').click(function(e){
+	$.post('/addingredient/',
+		{
+			csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+		},
+		function(data) {
+			$(".modal-content").html(data);
+		}
+	).fail(function(data) {
+		console.log("fail");
+	});
+});
+
+$('.addButton').click(function(e){
+	var length = this.id.length;
+	var id = this.id.substring(length-1, length);
+
+	var ingredient = $("#button"+id).text();
+	var amount = $("#amount"+id).val();
+	console.log(amount);
+	$('#ingredients').append("<li>" + ingredient + " - " + amount + "</li>");
+	$("#hidden-ingredients").val($("#hidden-ingredients").val() + ingredient.trim() + "-" + amount.trim() + ";");
+});
+
+$('li').click(function(e) {
+	var length = this.id.split("-")[0].length;
+	var ingredienTypeID = this.id.split("-")[0].substring(length-1, length);
+	var ingredientID = this.id.split("-")[1];
+	$("#button" + ingredienTypeID).text($(this).text())
+});
+
+</script>
+
+
+
+
+{% endblock %}

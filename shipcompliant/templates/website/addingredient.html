@@ -1,0 +1,47 @@
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	<h4 class="modal-title" id="myModalLabel">Add a new ingredient</h4>
+</div>
+<div class="modal-body">
+	<div class="dropdown">
+		<a id="dropDownTitle" data-toggle="dropdown" href="#">Ingredient</a><span class="caret"></span>
+		<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+			{% for ingredient_type in ingredient_types %}
+				<li id="{{ ingredient_type.display_name }}" role="presentation">
+					<a href="#">{{ ingredient_type.display_name }}</a>
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+
+	<div class="table-responsive">
+		<form class="form-fs" action="/addnewingredient/" method="post" role="form">
+			{% csrf_token %}
+			<input type="text" class="form-control" name="title" placeholder="Ingredient Title">
+			<input id="inputIngredient" type="hidden" class="form-control" name="ingredient_id" value="{{ ingredient_id }}">			
+
+			<hr>
+			<button class="btn btn-primary btn-lg btn-block" type="submit">Submit</button>
+		</form>
+	</div>
+	
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+
+<script>
+
+$('li').click(function(e) {
+	$('#dropDownTitle').text(this.id);
+	var newVal = this.id;
+	$('#inputIngredient').val(newVal)
+});
+
+</script>
+
+
+
+
+
+
