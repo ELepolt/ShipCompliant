@@ -7,8 +7,8 @@ from website.models import IngredientType, Ingredient
 
 # Sets the order of fields that appear on admin page
 class IngredientTypeAdmin(admin.ModelAdmin):
-	fields = ['ingredient_type', 'display_name']
-	list_display = ('ingredient_type', 'display_name')
+	fields = ['display_name']
+	# list_display = ( 'display_name')
 
 class IngredientAdmin(admin.ModelAdmin):
 	fields = ['ingredient_type', 'name']

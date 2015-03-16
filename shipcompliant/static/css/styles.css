@@ -1,54 +1,11 @@
-.form-fs .form-control {
-  position: relative;
-  height: auto;
-  -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
-  padding: 10px;
-  font-size: 16px;
-  width: 50%;
+.form-horizontal input{
+  width:75%;
   display: inline;
+  padding: 5px;
 }
-
-.form-fs .form-control:focus {
-  z-index: 2;
+.nav-tabs {
+  border:none;
 }
-.form-fs input[type="text"], .form-fs input[type="email"] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.form-fs input[type="password"] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-.list-group .sub-list
-{
-  margin-top: 10px;
-  margin-bottom: 0px;
-}
-
-.fs-padded10
-{
-  padding: 10px;
-}
-.sc_clearer
-{
-  clear: both;
-}
-.sc_spacing
-{
-  padding-top: 5px;
-  padding-bottom: 5px
-}
-.table-responsive
-{
-  overflow: auto;
-}
-.glyphicon
-{
-  padding: 0px !important;
+.alert{
+  border: 1px solid red;
 }

@@ -8,29 +8,44 @@ from django.db.models import Q
 from website.forms import IngredientForm
 from website.models import BeerRecipe, IngredientType, Ingredient, BeerIngredient
 
-# import json
-# import pdb
+import json
+import pdb
 
 def index(request):
+	# Gets all the types of ingredients from the DB
 	ingredient_types = IngredientType.objects.all()
+	
+	# Creates an empty Ordered Dictionary
 	ingredient_dict = OrderedDict()
-	ingredient_types = IngredientType.objects.all()
-	# import pdb
-	# pdb.set_trace()
+
+	# Loops through the ingredient type list and adds a key value pair
+	# of Ingredient and List of Ingredients that match that type
 	for ingredient_type in ingredient_types:
 		ingredients = Ingredient.objects.filter(ingredient_type=ingredient_type)
 		ingredient_dict[ingredient_type] = ingredients
 	
+
 	recipe_list = OrderedDict()
 	recipes = BeerRecipe.objects.all()
 
+	# Loops through the recipes in the DB to add to the empty OrderedDict()
 	for recipe in recipes:
-		length = len(recipe.ingredients.split(";")) - 1
-		ingredient_list = []
-		for x in range(0,length):
-			beer_ingredient = BeerIngredient.objects.get(pk=recipe.ingredients.split(";")[x])
-			ingredient_list.append(beer_ingredient)
 
+		# Recipe ingredients are stored as a semi-colon separated list
+		# len() is index 1
+		# arrays are index 0
+		# length = len(recipe.ingredients.split(";")) - 1
+		# ingredient_list = []
+		ingredient_list = BeerIngredient.objects.filter(beer_recipe__id = recipe.id)
+		# loop from 0 to the length of the ingredient list
+		# for x in range(0,length):
+		# 	# Get the ingredient that the id matches with
+		# 	beer_ingredient = BeerIngredient.objects.get(pk=recipe.ingredients.split(";")[x])
+			
+		# 	# Add ingredient to the ingredient_list
+		# 	ingredient_list.append(beer_ingredient)
+			
+		# attach the ingredient list to the recipe
 		recipe_list[recipe] = ingredient_list
 
 
@@ -45,59 +60,40 @@ def index(request):
 def addrecipe(request):
 	if request.method == 'POST':
 		recipe = BeerRecipe()
-		recipe.title = request.POST['name']
+		recipe.title = request.POST['title']
 		recipe.instructions = request.POST['instructions']
+		recipe.description = request.POST['description']
+		recipe.save()
 		
 		ingredient_list = ""
-
 		ingredients = request.POST['ingredients']
+		amounts = request.POST['amounts']
 		length = len(ingredients.split(";"))-1
 		for x in range(0, length):
-			ingredient = BeerIngredient()			
-			ingredient.ingredient = Ingredient.objects.get(name = ingredients.split(";")[x].split("-")[0])
-			ingredient.amount = ingredients.split(";")[x].split("-")[1]
+			ingredient = BeerIngredient()
+			ingredient.beer_recipe = recipe
+			ingredient.ingredient = Ingredient.objects.get(id = ingredients.split(";")[x])
+			ingredient.amount = amounts.split(";")[x]
 
 			ingredient.save()
 
-			ingredient_list += str(ingredient.id) + ";"
-
-		recipe.ingredients = ingredient_list
-		recipe.save()
 
 	return redirect('index')
-
-def addingredient(request):
-	context = ""
-	if request.method == 'POST':
-		ingredient_types = IngredientType.objects.all()
-		
-		context = {
-			'ingredient_types': ingredient_types,
-		}
-
-		# if not request.user.is_authenticated():
-		# 	context['user_form'] = UserForm()
-		# else:
-		# 	checkins = FanStatsUser.objects.get(user=request.user).checkins.all()
-		# 	context['checkins'] = set(map(lambda x: x.sport_type.feed_id, checkins))
-
-		return render(request, 'website/addingredient.html', context)
-	else:
-		return render(request, 'website/addingredient.html', context)
 
 def addnewingredient(request):
 	if request.method == 'POST':
 		context = ""
 		ingredient = Ingredient()
 		
-		ingredient_id = request.POST['ingredient_id']
-		ingredient_type = IngredientType.objects.get(ingredient_type=ingredient_id)
-		ingredient.name = request.POST['title']
+		ingredient_type_id = request.POST['ingredient_type_id']
+		ingredient_type = IngredientType.objects.get(id=ingredient_type_id)
+		ingredient.name = request.POST['ingredient_name']
 		ingredient.ingredient_type = ingredient_type
-
-		ingredient.save()
 		
-	return redirect('index')
+		ingredient.save()
+		# pdb.set_trace()
+		return HttpResponse(str(ingredient.id) + ";" + str(ingredient.name) + ";" + str(ingredient.ingredient_type.display_name))
+	return ""
 
 
 
